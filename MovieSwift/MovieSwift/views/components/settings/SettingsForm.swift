@@ -15,17 +15,13 @@ struct SettingsForm : View {
     @State var alwaysOriginalTitle: Bool = false
     @Environment(\.presentationMode) var presentationMode
     
-    var countries: [String] {
-        get {
-            var countries: [String] = []
-            for code in NSLocale.isoCountryCodes {
-                let id = NSLocale.localeIdentifier(fromComponents: [NSLocale.Key.countryCode.rawValue: code])
-                let name = NSLocale(localeIdentifier: "en_US").displayName(forKey: NSLocale.Key.identifier, value: id)!
-                countries.append(name)
-            }
-            return countries
+    static let countries: [String] = {
+        let locale = NSLocale(localeIdentifier: "en_US")
+        return NSLocale.isoCountryCodes.compactMap { code in
+            let id = NSLocale.localeIdentifier(fromComponents: [NSLocale.Key.countryCode.rawValue: code])
+            return locale.displayName(forKey: NSLocale.Key.identifier, value: id)
         }
-    }
+    }()
     
     func debugInfoView(title: String, info: String) -> some View {
         HStack {
@@ -47,8 +43,8 @@ struct SettingsForm : View {
                         Picker(selection: $selectedRegion,
                                label: Text("Region"),
                                content: {
-                                ForEach(0 ..< self.countries.count) {
-                                    Text(self.countries[$0]).tag($0)
+                                ForEach(0 ..< Self.countries.count) {
+                                    Text(Self.countries[$0]).tag($0)
                                 }
                         })
                 })
