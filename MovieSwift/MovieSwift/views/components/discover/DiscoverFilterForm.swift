@@ -66,17 +66,14 @@ struct DiscoverFilterForm : View {
         return store.state.moviesState.savedDiscoverFilters
     }
     
-    var countries: [String] {
-        get {
-            var countries: [String] = ["Random"]
-            for code in NSLocale.isoCountryCodes {
-                let id = NSLocale.localeIdentifier(fromComponents: [NSLocale.Key.countryCode.rawValue: code])
-                let name = NSLocale(localeIdentifier: "en_US").displayName(forKey: NSLocale.Key.identifier, value: id)!
-                countries.append(name)
-            }
-            return countries
+    static let countries: [String] = {
+        let locale = NSLocale(localeIdentifier: "en_US")
+        let names = NSLocale.isoCountryCodes.compactMap { code -> String? in
+            let id = NSLocale.localeIdentifier(fromComponents: [NSLocale.Key.countryCode.rawValue: code])
+            return locale.displayName(forKey: NSLocale.Key.identifier, value: id)
         }
-    }
+        return ["Random"] + names
+    }()
     
     private var settingsSection: some View {
         Section(header: Text("Filter settings"), content: {
@@ -101,8 +98,8 @@ struct DiscoverFilterForm : View {
             Picker(selection: $selectedCountry,
                    label: Text("Country"),
                    content: {
-                    ForEach(0 ..< self.countries.count) {
-                        Text(self.countries[$0]).tag($0)
+                    ForEach(0 ..< Self.countries.count) {
+                        Text(Self.countries[$0]).tag($0)
                     }
             })
         })
